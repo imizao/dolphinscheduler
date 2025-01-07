@@ -23,10 +23,13 @@ import {
   reactive,
   toRefs,
   onMounted,
-  onUnmounted
+  onUnmounted,
+  nextTick,
+  watchEffect
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NIcon, NLog } from 'naive-ui'
+import type { LogInst } from 'naive-ui'
 import Modal from '../modal'
 import {
   DownloadOutlined,
@@ -69,6 +72,9 @@ export default defineComponent({
     const variables = reactive({
       isFullscreen: false
     })
+    
+    const logInstRef = ref<LogInst | null>(null)
+
 
     const change = () => {
       variables.isFullscreen = screenfull.isFullscreen
@@ -95,12 +101,21 @@ export default defineComponent({
       ctx.emit('downloadLogs', props.row)
     }
 
+    // Listen for changes in logRef and scroll to the bottom
+    watchEffect(() => {
+      if (props.logRef) {
+        nextTick(() => {
+          logInstRef.value?.scrollTo({ position: 'bottom', slient: true })
+        })
+      }
+    })
+
     onMounted(() => {
       screenfull.on('change', change)
     })
 
     onUnmounted(() => {
-      screenfull.on('change', change)
+      screenfull.off('change', change)
     })
 
     return {
@@ -110,6 +125,7 @@ export default defineComponent({
       refreshLogs,
       downloadLogs,
       handleFullScreen,
+      logInstRef,
       ...toRefs(variables)
     }
   },
@@ -157,6 +173,7 @@ export default defineComponent({
         ])}
       >
         <NLog
+          ref="logInstRef"
           rows={30}
           log={this.logRef}
           loading={this.logLoadingRef}
