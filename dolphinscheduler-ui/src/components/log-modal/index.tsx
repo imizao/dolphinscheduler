@@ -35,7 +35,8 @@ import {
   DownloadOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
-  SyncOutlined
+  SyncOutlined,
+  ProfileOutlined
 } from '@vicons/antd'
 import screenfull from 'screenfull'
 
@@ -70,7 +71,8 @@ export default defineComponent({
     const { t } = useI18n()
 
     const variables = reactive({
-      isFullscreen: false
+      isFullscreen: false,
+      autoScrollToBottom: true // New state variable
     })
     
     const logInstRef = ref<LogInst | null>(null)
@@ -100,10 +102,14 @@ export default defineComponent({
     const downloadLogs = () => {
       ctx.emit('downloadLogs', props.row)
     }
-
-    // Listen for changes in logRef and scroll to the bottom
+  
+    const toggleAutoScroll = () => {
+      variables.autoScrollToBottom = !variables.autoScrollToBottom
+    }
+  
+    // Listen for changes in logRef and scroll to the bottom if autoScrollToBottom is enabled
     watchEffect(() => {
-      if (props.logRef) {
+      if (props.logRef && variables.autoScrollToBottom) {
         nextTick(() => {
           logInstRef.value?.scrollTo({ position: 'bottom', slient: true })
         })
@@ -125,6 +131,7 @@ export default defineComponent({
       refreshLogs,
       downloadLogs,
       handleFullScreen,
+      toggleAutoScroll,
       logInstRef,
       ...toRefs(variables)
     }
@@ -137,6 +144,8 @@ export default defineComponent({
       downloadLogs,
       isFullscreen,
       handleFullScreen,
+      toggleAutoScroll,
+      autoScrollToBottom,
       showDownloadLog
     } = this
     return (
@@ -169,6 +178,14 @@ export default defineComponent({
             icon: isFullscreen
               ? renderIcon(FullscreenExitOutlined)
               : renderIcon(FullscreenOutlined)
+          },
+          {
+            text: autoScrollToBottom
+              ? t('project.task.cancel_log_auto_scroll')
+              : t('project.task.enter_log_auto_scroll'),
+            show: true,
+            action: toggleAutoScroll,
+            icon: renderIcon(ProfileOutlined)
           }
         ])}
       >
