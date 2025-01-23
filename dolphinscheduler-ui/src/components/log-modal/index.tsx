@@ -158,6 +158,14 @@ export default defineComponent({
         style={{ width: '60%' }}
         headerLinks={ref([
           {
+            text: autoScrollToBottom
+              ? t('project.task.disable_log_auto_scroll')
+              : t('project.task.enable_log_auto_scroll'),
+            show: true,
+            action: toggleAutoScroll,
+            icon: renderIcon(ProfileOutlined)
+          },
+          {
             text: t('project.workflow.download_log'),
             show: showDownloadLog,
             action: downloadLogs,
@@ -178,14 +186,6 @@ export default defineComponent({
             icon: isFullscreen
               ? renderIcon(FullscreenExitOutlined)
               : renderIcon(FullscreenOutlined)
-          },
-          {
-            text: autoScrollToBottom
-              ? t('project.task.disable_log_auto_scroll')
-              : t('project.task.enable_log_auto_scroll'),
-            show: true,
-            action: toggleAutoScroll,
-            icon: renderIcon(ProfileOutlined)
           }
         ])}
       >
